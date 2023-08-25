@@ -72,11 +72,20 @@ public class ClubGrid {
 	
 	public GridBlock enterClub(PeopleLocation myLocation) throws InterruptedException  {
 		counter.personArrived(); //add to counter of people waiting 
+		synchronized(counter){
+			while(counter.overCapacity()){
+				counter.wait();
+			}
+		}
 		entrance.get(myLocation.getID());
 		counter.personEntered(); //add to counter
 		myLocation.setLocation(entrance);
 		myLocation.setInRoom(true);
 		return entrance;
+	}
+
+	public int customerWaiting(PeopleLocation andreLocation){
+		return Blocks[andreLocation.getX()][bar_y].getOccupied();
 	}
 	
 	
@@ -87,9 +96,14 @@ public class ClubGrid {
 		
 		int new_x = c_x+step_x; //new block x coordinates
 		int new_y = c_y+step_y; // new block y  coordinates
-		
+
+		//Checking Andre's position is valid
+		if(c_y > bar_y){
+			if(new_x < 0 || new_x >=x)
+				return currentBlock;
+		}
 		//restrict i an j to grid
-		if (!inPatronArea(new_x,new_y)) {
+		else if (!inPatronArea(new_x,new_y)) {
 			//Invalid move to outside  - ignore
 			return currentBlock;
 		}
@@ -107,11 +121,14 @@ public class ClubGrid {
 	} 
 	
 
-	public  void leaveClub(GridBlock currentBlock,PeopleLocation myLocation)   {
+	public void leaveClub(GridBlock currentBlock,PeopleLocation myLocation)   {
 			currentBlock.release();
-			counter.personLeft(); //add to counter
+			synchronized(counter){
+				counter.personLeft(); //add to counter
+				counter.notifyAll();
+			}
 			myLocation.setInRoom(false);
-			entrance.notifyAll();
+			//entrance.notifyAll();
 	}
 
 	public GridBlock getExit() {
@@ -135,9 +152,3 @@ public class ClubGrid {
 	}
 
 }
-
-
-	
-
-	
-

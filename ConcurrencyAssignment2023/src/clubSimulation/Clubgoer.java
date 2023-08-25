@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Clubgoer extends Thread {
 	
 	public static ClubGrid club; //shared club
+	public static AndreBarman andre; //shared barman
 
 	GridBlock currentBlock;
 	private Random rand;
@@ -24,11 +25,15 @@ public class Clubgoer extends Thread {
 	
 	private int ID; //thread ID 
 
+	public static AtomicBoolean simStart = new AtomicBoolean(false);
+	public static AtomicBoolean simPaused = new AtomicBoolean(false);
+
 	
-	Clubgoer( int ID,  PeopleLocation loc,  int speed) {
+	Clubgoer( int ID,  PeopleLocation loc,  int speed, AndreBarman andre) {
 		this.ID=ID;
 		movingSpeed=speed; //range of speeds for customers
 		this.myLocation = loc; //for easy lookups
+		Clubgoer.andre = andre;
 		inRoom=false; //not in room yet
 		thirsty=true; //thirsty when arrive
 		wantToLeave=false;	 //want to stay when arrive
@@ -49,25 +54,40 @@ public class Clubgoer extends Thread {
 	//getter
 	public   int getSpeed() { return movingSpeed; }
 
+	public boolean getThirsty(){ return thirsty;}
+
 	//setter
 
 	//check to see if user pressed pause button
-	private void checkPause() {
-		// THIS DOES NOTHING - MUST BE FIXED  	
+	private void checkPause() throws InterruptedException {
+		synchronized(simPaused){
+			while(simPaused.get())
+				simPaused.wait();
+		}  	
         
     }
-	private void startSim() {
-		// THIS DOES NOTHING - MUST BE FIXED  	
+	private void startSim() throws InterruptedException {
+		synchronized(simStart){
+			while(!simStart.get())
+				simStart.wait();
+		}	
         
     }
 	
 	//get drink at bar
 		private void getDrink() throws InterruptedException {
 			//FIX SO BARMAN GIVES THE DRINK AND IT IS NOT AUTOMATIC
+			synchronized(andre.serving){
+				while(andre.serving.get() != ID){
+					andre.serving.wait();
+				}
+				//System.out.println(ID + " DONE WAITING");
+			}
 			thirsty=false;
 			System.out.println("Thread "+this.ID + " got drink at bar position: " + currentBlock.getX()  + " " +currentBlock.getY() );
 			sleep(movingSpeed*5);  //wait a bit
 		}
+	
 		
 	//--------------------------------------------------------
 	//DO NOT CHANGE THE CODE BELOW HERE - it is not necessary
@@ -75,7 +95,7 @@ public class Clubgoer extends Thread {
 	public void enterClub() throws InterruptedException {
 		currentBlock = club.enterClub(myLocation);  //enter through entrance
 		inRoom=true;
-		System.out.println("Thread "+this.ID + " entered club at position: " + currentBlock.getX()  + " " +currentBlock.getY() );
+		//System.out.println("Thread "+this.ID + " entered club at position: " + currentBlock.getX()  + " " +currentBlock.getY() );
 		sleep(movingSpeed/2);  //wait a bit at door
 	}
 	
@@ -84,7 +104,7 @@ public class Clubgoer extends Thread {
 		int x_mv= rand.nextInt(3)-1;	//	-1,0 or 1
 		int y_mv= Integer.signum(club.getBar_y()-currentBlock.getY());//-1,0 or 1
 		currentBlock=club.move(currentBlock,x_mv,y_mv,myLocation); //head toward bar
-		System.out.println("Thread "+this.ID + " moved toward bar to position: " + currentBlock.getX()  + " " +currentBlock.getY() );
+		//System.out.println("Thread "+this.ID + " moved toward bar to position: " + currentBlock.getX()  + " " +currentBlock.getY() );
 		sleep(movingSpeed/2);  //wait a bit
 	}
 	
@@ -96,7 +116,7 @@ public class Clubgoer extends Thread {
 		int x_mv= Integer.signum(exit.getX()-currentBlock.getX());//x_mv is -1,0 or 1
 		int y_mv= Integer.signum(exit.getY()-currentBlock.getY());//-1,0 or 1
 		currentBlock=club.move(currentBlock,x_mv,y_mv,myLocation); 
-		System.out.println("Thread "+this.ID + " moved to towards exit: " + currentBlock.getX()  + " " +currentBlock.getY() );
+		//System.out.println("Thread "+this.ID + " moved to towards exit: " + currentBlock.getX()  + " " +currentBlock.getY() );
 		sleep(movingSpeed);  //wait a bit
 	}
 	

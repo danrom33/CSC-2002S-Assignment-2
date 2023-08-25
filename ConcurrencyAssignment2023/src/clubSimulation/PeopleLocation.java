@@ -38,7 +38,11 @@ public class PeopleLocation  { // this is a separate class so don't have to acce
 	public GridBlock getLocation() {
 		return location;
 	}
-	public  void setLocation(GridBlock location) {
+	public void setLocation(GridBlock location) {
+		// if(location.occupied()){
+		// 	//do something
+		// }
+		// else
 		this.location = location;
 	}
 

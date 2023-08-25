@@ -53,8 +53,9 @@ public class PeopleCounter {
 	}
 	//too many people inside
 	synchronized public boolean overCapacity() {
-		if(peopleInside.get()>=maxPeople.get())
+		if(peopleInside.get()>= maxPeople.get())
 			return true;
+		this.notifyAll();
 		return false;
 	}
 	
