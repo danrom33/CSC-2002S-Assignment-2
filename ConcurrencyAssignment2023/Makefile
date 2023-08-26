@@ -18,4 +18,4 @@ clean:
 
 
 run:
-	$(JAVA) -cp $(BINDIR) ClubSimulation.java $(ARGS)
+	$(JAVA) -cp $(BINDIR) clubSimulation.ClubSimulation $(ARGS)
