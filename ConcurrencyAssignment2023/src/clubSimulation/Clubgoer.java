@@ -29,11 +29,10 @@ public class Clubgoer extends Thread {
 	public static AtomicBoolean simPaused = new AtomicBoolean(false);
 
 	
-	Clubgoer( int ID,  PeopleLocation loc,  int speed, AndreBarman andre) {
+	Clubgoer( int ID,  PeopleLocation loc,  int speed) {
 		this.ID=ID;
 		movingSpeed=speed; //range of speeds for customers
 		this.myLocation = loc; //for easy lookups
-		Clubgoer.andre = andre;
 		inRoom=false; //not in room yet
 		thirsty=true; //thirsty when arrive
 		wantToLeave=false;	 //want to stay when arrive

@@ -140,13 +140,14 @@ public class ClubSimulation {
 		patrons = new Clubgoer[noClubgoers];
 
 		andre = new AndreBarman(clubGrid, patrons, noClubgoers,(int)(Math.random() * (maxWait-minWait)+minWait));
-		
+		Clubgoer.andre = andre;
+
 		Random rand = new Random();
 
         for (int i=0;i<noClubgoers;i++) {
         		peopleLocations[i]=new PeopleLocation(i);
         		int movingSpeed=(int)(Math.random() * (maxWait-minWait)+minWait); //range of speeds for customers
-    			patrons[i] = new Clubgoer(i,peopleLocations[i],movingSpeed, andre);
+    			patrons[i] = new Clubgoer(i,peopleLocations[i],movingSpeed);
     		}
 		           
 		setupGUI(frameX, frameY,exit);  //Start Panel thread - for drawing animation
