@@ -73,11 +73,11 @@ public class ClubGrid {
 	public GridBlock enterClub(PeopleLocation myLocation) throws InterruptedException  {
 		counter.personArrived(); //add to counter of people waiting 
 		synchronized(entrance){
+			//If club is over capacity, or someone is standing in the entrance block, thread waits until both are resolved
 			while(counter.overCapacity() || entrance.occupied()){
 				entrance.wait();
 			}
 			entrance.get(myLocation.getID());
-			entrance.notifyAll();
 		}
 		counter.personEntered(); //add to counter
 		myLocation.setLocation(entrance);
@@ -98,7 +98,7 @@ public class ClubGrid {
 		int new_x = c_x+step_x; //new block x coordinates
 		int new_y = c_y+step_y; // new block y  coordinates
 
-		//Checking Andre's position is valid
+		//Checking Andre's position is valid (if he is currently on the farthest left or right block, his currentBlock is returned)
 		if(c_y > bar_y){
 			if(new_x < 0 || new_x >=x)
 				return currentBlock;
@@ -127,8 +127,8 @@ public class ClubGrid {
 			counter.personLeft(); //add to counter
 			myLocation.setInRoom(false);
 			synchronized(entrance){
-				entrance.notifyAll();
-			}
+				entrance.notifyAll(); //notify all threads waiting outside the club when any thread has left (club could now be under capacity and waiting thread could enter)
+			} 
 	}
 
 	public GridBlock getExit() {

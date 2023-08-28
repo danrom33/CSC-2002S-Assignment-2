@@ -13,12 +13,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClubSimulation {
 	static int noClubgoers=100;
-   	static int frameX=400;
-	static int frameY=500;
+   	static int frameX=1000;
+	static int frameY=1000;
 	static int yLimit=400;
-	static int gridX=20; //number of x grids in club - default value if not provided on command line
-	static int gridY=15; //number of y grids in club - default value if not provided on command line
-	static int max=70; //max number of customers - default value if not provided on command line
+	static int gridX=7; //number of x grids in club - default value if not provided on command line
+	static int gridY=7; //number of y grids in club - default value if not provided on command line
+	static int max=5; //max number of customers - default value if not provided on command line
 	
 	static Clubgoer[] patrons; // array for customer threads
 	static PeopleLocation [] peopleLocations;  //array to keep track of where customers are
@@ -71,6 +71,7 @@ public class ClubSimulation {
 		// add the listener to the jbutton to handle the "pressed" event
 		startB.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e)  {
+				//When start button is pressed, sets AtomicBoolean simStart to true and notifies all threads waiting on this
 				synchronized(Clubgoer.simStart){
 					Clubgoer.simStart.set(true);
 					Clubgoer.simStart.notifyAll();
@@ -83,12 +84,15 @@ public class ClubSimulation {
 			// add the listener to the jbutton to handle the "pressed" event
 			pauseB.addActionListener(new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {
+				//When pause button clicked - checks to see if it is pausing or resuming simulation
 				synchronized(Clubgoer.simPaused){
+					//If atomicBoolean simPaused is currently true, that means it is resuming the simulation. simPaused set to false and all waiting threads are notified so they can stop waiting.
 		    		if(Clubgoer.simPaused.get()){
 						Clubgoer.simPaused.set(false);
 						Clubgoer.simPaused.notifyAll();
 						pauseB.setText("Pause");
 					}
+					//if AtomicBoolean simPaused is currently flase, that means it is pausing the simulation. simPaused set to true
 					else{
 						Clubgoer.simPaused.set(true);
 						pauseB.setText("Resume");
@@ -139,8 +143,9 @@ public class ClubSimulation {
 	    peopleLocations = new PeopleLocation[noClubgoers];
 		patrons = new Clubgoer[noClubgoers];
 
+		//create instance of Andre the Barman
 		andre = new AndreBarman(clubGrid, patrons, noClubgoers,(int)(Math.random() * (maxWait-minWait)+minWait));
-		Clubgoer.andre = andre;
+		Clubgoer.andre = andre; //Andre shared with all clubgoer instances 
 
 		Random rand = new Random();
 

@@ -61,30 +61,34 @@ public class Clubgoer extends Thread {
 	private void checkPause() throws InterruptedException {
 		synchronized(simPaused){
 			while(simPaused.get())
-				simPaused.wait();
+				simPaused.wait(); //Clubgoer waits untill simulation is resumed
 		}  	
         
     }
+
+	//checks to see if simulation has started
 	private void startSim() throws InterruptedException {
 		synchronized(simStart){
 			while(!simStart.get())
-				simStart.wait();
+				simStart.wait(); //Clubgoer waits untill simulation has started
 		}	
         
     }
 	
 	//get drink at bar
 		private void getDrink() throws InterruptedException {
-			//FIX SO BARMAN GIVES THE DRINK AND IT IS NOT AUTOMATIC
 			synchronized(andre.serving){
 				while(andre.serving.get() != ID){
-					andre.serving.wait();
+					andre.serving.wait(); //Clubgoer waits untill they've been served by Andre.
 				}
 				//System.out.println(ID + " DONE WAITING");
 			}
 			thirsty=false;
 			System.out.println("Thread "+this.ID + " got drink at bar position: " + currentBlock.getX()  + " " +currentBlock.getY() );
-			sleep(movingSpeed*5);  //wait a bit
+			currentBlock = club.move(currentBlock, 0, -1, myLocation); //step back to drink drink
+			sleep(movingSpeed);
+			currentBlock = club.move(currentBlock, 0, 1, myLocation); //put glass down at bar
+			sleep(movingSpeed/2);  //wait a bit
 		}
 	
 		

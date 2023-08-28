@@ -35,11 +35,14 @@ public class GridBlock {
 		return true;
 	}
 
+	//returns ID of thread occupying block
 	public synchronized int getOccupied(){
 		return isOccupied;
 	}
 		
+
 	public void release() {
+		//When thread moves out of a block, notifies all threads waiting on this block (used for 1 patron occupying entrance block at same time)
 		synchronized(this){
 			isOccupied=-1;
 			this.notifyAll();
